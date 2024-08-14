@@ -65,6 +65,34 @@ def get_current_wallpaper():
     ctypes.windll.user32.SystemParametersInfoW(SPI_GETDESKWALLPAPER, 260, buffer, 0)
     return buffer.value
 
+# Function to check if the current wallpaper is set to a color
+def is_wallpaper_color():
+    SPI_GETDESKWALLPAPER = 0x0073
+    buffer = ctypes.create_unicode_buffer(260)
+    ctypes.windll.user32.SystemParametersInfoW(SPI_GETDESKWALLPAPER, 260, buffer, 0)
+    return not bool(buffer.value)
+
+# Function to create a gradient image if wallpaper is set to a color
+def create_gradient_background(script_folder):
+    width, height = 1920, 1080  # Adjust size as needed
+    img = Image.new("RGB", (width, height), "#2982ff")
+    draw = ImageDraw.Draw(img)
+
+    start_color = (0x21, 0x6a, 0xd1)  # #216ad1
+    end_color = (0x18, 0x3f, 0x76)    # #183f76
+
+    for i in range(width):
+        for j in range(height):
+            ratio = (i + j) / (width + height)
+            r = int(start_color[0] + ratio * (end_color[0] - start_color[0]))
+            g = int(start_color[1] + ratio * (end_color[1] - start_color[1]))
+            b = int(start_color[2])
+            draw.point((i, j), fill=(r, g, b))
+
+    gradient_path = os.path.join(script_folder, "original_wallpaper.jpg")
+    img.save(gradient_path)
+    return gradient_path
+
 # Function to copy the current wallpaper to the script's folder
 def copy_wallpaper_to_script_folder(wallpaper_path, script_folder):
     wallpaper_copy_path = os.path.join(script_folder, "original_wallpaper.jpg")
@@ -135,7 +163,10 @@ current_wallpaper = get_current_wallpaper()
 
 # Check if the current wallpaper is already overlay.png
 if not current_wallpaper.endswith("overlay.png"):
-    wallpaper_copy_path = copy_wallpaper_to_script_folder(current_wallpaper, script_folder)
+    if is_wallpaper_color():
+        wallpaper_copy_path = create_gradient_background(script_folder)
+    else:
+        wallpaper_copy_path = copy_wallpaper_to_script_folder(current_wallpaper, script_folder)
 else:
     wallpaper_copy_path = os.path.join(script_folder, "original_wallpaper.jpg")
 

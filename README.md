@@ -1,2 +1,3 @@
-# py-bginfo
-A python rewrite of bginfo specifically for Active IT Solutions (Can be easily modified)
+bginfo - Original Source.py is suitable to be run from python directly
+
+py-bginfo.py is the source that we can use to compile with auto-py-to-exe

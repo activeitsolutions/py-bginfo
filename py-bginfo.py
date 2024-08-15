@@ -4,6 +4,7 @@ import psutil
 import socket
 import ctypes
 from PIL import Image, ImageDraw, ImageFont
+import random
 import struct
 import time
 import shutil
@@ -75,7 +76,7 @@ def is_wallpaper_color():
 # Function to create a gradient image if wallpaper is set to a color
 def create_gradient_background(script_folder):
     width, height = 1920, 1080  # Adjust size as needed
-    img = Image.new("RGB", (width, height), "#2982ff")
+    img = Image.new("RGB", (width, height), "#216ad1")
     draw = ImageDraw.Draw(img)
 
     start_color = (0x21, 0x6a, 0xd1)  # #216ad1
@@ -87,6 +88,12 @@ def create_gradient_background(script_folder):
             r = int(start_color[0] + ratio * (end_color[0] - start_color[0]))
             g = int(start_color[1] + ratio * (end_color[1] - start_color[1]))
             b = int(start_color[2])
+
+            # Add dithering effect
+            dither = random.randint(-1, 1)  # Small random adjustment
+            r = max(0, min(255, r + dither))
+            g = max(0, min(255, g + dither))
+
             draw.point((i, j), fill=(r, g, b))
 
     gradient_path = os.path.join(script_folder, "original_wallpaper.jpg")
